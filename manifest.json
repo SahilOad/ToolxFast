@@ -1,0 +1,22 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "ToolxFast Pro",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "ToolxFast",
+  "start_url": "/",
+  "theme_color": "#0B132B",
+  "id": "toolxfast",
+  "description": "An ultimate developer and mobile utility suite",
+  "lang": "en",
+  "categories": [
+    "developer tools",
+    "development",
+    "education",
+    "graphics",
+    "graphics &amp; design",
+    "utilities"
+  ]
+}
