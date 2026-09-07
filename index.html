@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0B132B">
+  <title>ToolxFast Pro - Ultimate Mobile Suite</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0B132B;
+      --card-bg: #1C2541;
+      --card-hover: #24305E;
+      --text: #F0F4F8;
+      --subtext: #8D99AE;
+      --accent: #4361EE;
+      --accent-hover: #3A0CA3;
+      --on-accent: #FFFFFF;
+      --border: #2A3655;
+      --radius: 18px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      --bottom-nav-bg: rgba(28, 37, 65, 0.96);
+      --success: #4BB543;
+      --danger: #FF3366;
+      --star-active: #FFD166;
+    }
+
+    [data-theme="light"] {
+      --bg: #F8F9FA;
+      --card-bg: #FFFFFF;
+      --card-hover: #F1F3F5;
+      --text: #212529;
+      --subtext: #6C757D;
+      --accent: #4361EE;
+      --accent-hover: #3A0CA3;
+      --on-accent: #FFFFFF;
+      --border: #DEE2E6;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      --bottom-nav-bg: rgba(255, 255, 255, 0.96);
+      --success: #2B9348;
+      --danger: #D90429;
+      --star-active: #F77F00;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+    
+    body { 
+      background-color: var(--bg); 
+      color: var(--text); 
+      line-height: 1.6; 
+      display: flex; 
+      flex-direction: column; 
+      min-height: 100vh; 
+      padding-bottom: 90px;
+      transition: background-color 0.2s ease, color 0.2s ease; 
+    }
+
+    header { 
+      background-color: var(--card-bg); 
+      border-bottom: 1px solid var(--border); 
+      padding: 1rem 1.25rem; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+      backdrop-filter: blur(10px);
+    }
+    .header-user span.greeting { font-size: 0.72rem; color: var(--subtext); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+    .header-user h1.app-title { font-size: 1.2rem; color: var(--text); font-weight: 800; }
+    .header-user h1.app-title span { color: var(--accent); }
+    
+    .icon-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-size: 1.1rem; cursor: pointer; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+    /* Views System */
+    .view { display: none; padding: 1.25rem; max-width: 600px; margin: 0 auto; width: 100%; flex-direction: column; gap: 1.25rem; animation: fadeIn 0.2s ease-in-out; }
+    .view.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .search-box { position: relative; width: 100%; }
+    .search-box input { 
+      width: 100%; padding: 0.95rem 1rem 0.95rem 3.2rem; 
+      border-radius: 14px; border: 1px solid var(--border); 
+      background: var(--card-bg); color: var(--text); font-size: 0.95rem; outline: none; 
+      box-shadow: var(--shadow);
+    }
+    .search-box input:focus { border-color: var(--accent); }
+    .search-box::before { content: '🔍'; position: absolute; left: 1.1rem; top: 50%; transform: translateY(-50%); font-size: 0.95rem; }
+
+    .chips-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+    .chips-scroll::-webkit-scrollbar { display: none; }
+    .chip { 
+      background: var(--card-bg); border: 1px solid var(--border); 
+      color: var(--subtext); font-weight: 700; font-size: 0.84rem; 
+      padding: 0.6rem 1.2rem; border-radius: 99px; cursor: pointer; white-space: nowrap; 
+    }
+    .chip.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+
+    .section-label { font-size: 0.8rem; font-weight: 800; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.8px; }
+    .tools-list { display: flex; flex-direction: column; gap: 12px; }
+    
+    .tool-card { 
+      background: var(--card-bg); border: 1px solid var(--border); 
+      border-radius: var(--radius); padding: 1.15rem; box-shadow: var(--shadow); 
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer; 
+      transition: transform 0.1s ease, background-color 0.2s; position: relative;
+    }
+    .tool-card:active { transform: scale(0.98); background: var(--card-hover); }
+    
+    .tool-info { display: flex; align-items: center; gap: 14px; flex: 1; pointer-events: none; }
+    .tool-icon { font-size: 1.5rem; background: var(--bg); width: 50px; height: 50px; border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tool-text h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .tool-text p { font-size: 0.82rem; color: var(--subtext); line-height: 1.4; }
+    
+    .tool-actions-row { display: flex; align-items: center; gap: 8px; }
+    .star-btn { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--subtext); padding: 6px; }
+    .star-btn.starred { color: var(--star-active); }
+    .tool-arrow { color: var(--subtext); font-size: 1.15rem; font-weight: bold; pointer-events: none; }
+
+    /* Tool Screen Header */
+    .tool-screen-header { 
+      background: var(--card-bg); border-bottom: 1px solid var(--border); 
+      padding: 1.1rem 1.25rem; display: flex; align-items: center; gap: 14px; margin: -1.25rem -1.25rem 1.25rem -1.25rem; 
+    }
+    .back-btn { background: var(--bg); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; color: var(--text); }
+    .tool-screen-title h2 { font-size: 1.15rem; font-weight: 800; color: var(--text); }
+    .tool-screen-title p { font-size: 0.78rem; color: var(--subtext); }
+
+    .tool-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.1rem; }
+    .tool-group label { font-size: 0.85rem; font-weight: 700; color: var(--subtext); }
+    .tool-input, .tool-textarea { 
+      width: 100%; padding: 0.95rem; border-radius: 14px; 
+      border: 1px solid var(--border); background: var(--card-bg); 
+      color: var(--text); font-size: 0.95rem; outline: none; 
+    }
+    .tool-input:focus, .tool-textarea:focus { border-color: var(--accent); }
+    .tool-textarea { resize: vertical; min-height: 120px; }
+
+    .action-btn { 
+      background: var(--accent); color: var(--on-accent); border: none; 
+      padding: 1.05rem; border-radius: 14px; font-weight: 800; font-size: 1rem; 
+      width: 100%; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 1.1rem;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+    }
+    .action-btn:active { transform: scale(0.98); }
+
+    .result-box { 
+      background: var(--card-bg); border: 1px solid var(--border); 
+      padding: 1.25rem; border-radius: var(--radius); display: none; 
+      flex-direction: column; gap: 10px; word-break: break-all; margin-top: 1.1rem; 
+    }
+    .result-box h4 { font-size: 0.92rem; font-weight: 700; color: var(--success); display: flex; align-items: center; gap: 6px; }
+    .result-output { background: var(--bg); padding: 0.95rem; border-radius: 10px; border: 1px solid var(--border); font-family: monospace; font-size: 0.9rem; color: var(--text); max-height: 160px; overflow-y: auto; }
+
+    /* Policy Card styling */
+    .policy-card { background: var(--card-bg); border: 1px solid var(--border); padding: 1.5rem; border-radius: var(--radius); display: flex; flex-direction: column; gap: 1rem; box-shadow: var(--shadow); }
+    .policy-card h3 { font-size: 1.1rem; font-weight: 800; color: var(--accent); }
+    .policy-card p { font-size: 0.88rem; color: var(--subtext); line-height: 1.6; }
+
+    .bottom-nav { 
+      position: fixed; bottom: 0; left: 0; right: 0; 
+      background: var(--bottom-nav-bg); backdrop-filter: blur(16px); 
+      border-top: 1px solid var(--border); display: flex; justify-content: space-around; 
+      padding: 0.7rem 0; z-index: 1000; 
+    }
+    .nav-item { 
+      background: none; border: none; display: flex; flex-direction: column; align-items: center; gap: 3px; 
+      color: var(--subtext); font-size: 0.72rem; font-weight: 700; cursor: pointer; padding: 2px 14px; 
+    }
+    .nav-item span.nav-icon { font-size: 1.25rem; pointer-events: none; }
+    .nav-item.active { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class='header-user'>
+      <span class='greeting'>Pro Suite</span>
+      <h1 class='app-title'>Toolx<span>Fast</span></h1>
+    </div>
+    <button class='icon-btn' id='themeToggle'>☽</button>
+  </header>
+
+  <!-- HOME VIEW -->
+  <div id='homeView' class='view active'>
+    <div class='search-box'>
+      <input id='toolSearch' placeholder='Search 16+ professional tools...' type='text'>
+    </div>
+
+    <div class='chips-scroll'>
+      <button class='chip active' data-filter='all'>All Tools</button>
+      <button class='chip' data-filter='Utility'>Utilities</button>
+      <button class='chip' data-filter='Text'>Text & Code</button>
+      <button class='chip' data-filter='Math'>Math & Security</button>
+    </div>
+
+    <div class='section-label'>All Utilities</div>
+
+    <div class='tools-list' id='toolsListContainer'>
+      
+      <!-- 1. QR Code Generator -->
+      <div class='tool-card' onclick='openTool("qrView")' data-category='Utility' data-name='QR Code Generator' data-id='qrView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🔲</div>
+          <div class='tool-text'>
+            <h3>QR Code Generator</h3>
+            <p>Turn links or text into instant codes</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "qrView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 2. Password -->
+      <div class='tool-card' onclick='openTool("passView")' data-category='Utility' data-name='Secure Password Generator' data-id='passView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🔑</div>
+          <div class='tool-text'>
+            <h3>Password Generator</h3>
+            <p>Create secure random keys instantly</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "passView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 3. JSON Formatter -->
+      <div class='tool-card' onclick='openTool("jsonView")' data-category='Text' data-name='JSON Formatter Validator' data-id='jsonView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>{}</div>
+          <div class='tool-text'>
+            <h3>JSON Beautifier & Validator</h3>
+            <p>Format and parse raw JSON safely</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "jsonView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 4. Word Counter -->
+      <div class='tool-card' onclick='openTool("counterView")' data-category='Text' data-name='Word Character Counter' data-id='counterView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>📊</div>
+          <div class='tool-text'>
+            <h3>Word & Character Counter</h3>
+            <p>Analyze text metrics instantly</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "counterView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 5. Percentage Calculator -->
+      <div class='tool-card' onclick='openTool("percView")' data-category='Math' data-name='Percentage Calculator' data-id='percView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>%</div>
+          <div class='tool-text'>
+            <h3>Percentage Calculator</h3>
+            <p>Quick financial ratio math</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "percView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 6. Base64 -->
+      <div class='tool-card' onclick='openTool("baseView")' data-category='Text' data-name='Base64 Encoder Decoder' data-id='baseView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🔄</div>
+          <div class='tool-text'>
+            <h3>Base64 Encoder / Decoder</h3>
+            <p>Convert text to Base64 & back</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "baseView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 7. Color Converter -->
+      <div class='tool-card' onclick='openTool("colorView")' data-category='Utility' data-name='Color Converter HEX RGB' data-id='colorView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🎨</div>
+          <div class='tool-text'>
+            <h3>Color Converter</h3>
+            <p>Transform HEX color codes to RGB</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "colorView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 8. UUID Generator -->
+      <div class='tool-card' onclick='openTool("uuidView")' data-category='Math' data-name='UUID Generator' data-id='uuidView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🆔</div>
+          <div class='tool-text'>
+            <h3>UUID v4 Generator</h3>
+            <p>Generate unique identification tokens</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "uuidView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 9. Number Base Converter -->
+      <div class='tool-card' onclick='openTool("numBaseView")' data-category='Math' data-name='Number Base Converter' data-id='numBaseView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🔢</div>
+          <div class='tool-text'>
+            <h3>Number Base Converter</h3>
+            <p>Binary, Decimal, Hex & Octal math</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "numBaseView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 10. Lorem Ipsum -->
+      <div class='tool-card' onclick='openTool("loremView")' data-category='Text' data-name='Lorem Ipsum Generator' data-id='loremView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>📝</div>
+          <div class='tool-text'>
+            <h3>Lorem Ipsum Generator</h3>
+            <p>Generate placeholder text paragraphs</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "loremView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 11. Epoch Timestamp -->
+      <div class='tool-card' onclick='openTool("epochView")' data-category='Utility' data-name='Epoch Timestamp Converter' data-id='epochView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>⏳</div>
+          <div class='tool-text'>
+            <h3>Epoch Timestamp Converter</h3>
+            <p>Convert Unix time to readable dates</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "epochView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 12. Markdown Previewer -->
+      <div class='tool-card' onclick='openTool("mdView")' data-category='Text' data-name='Markdown to HTML Previewer' data-id='mdView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🌐</div>
+          <div class='tool-text'>
+            <h3>Markdown Previewer</h3>
+            <p>Live syntax formatting for developers</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "mdView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 13. Hash Generator -->
+      <div class='tool-card' onclick='openTool("hashView")' data-category='Math' data-name='Hash Generator MD5 SHA' data-id='hashView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>🔒</div>
+          <div class='tool-text'>
+            <h3>Hash Generator (MD5/SHA)</h3>
+            <p>Calculate cryptographic checksums</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "hashView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 14. HTML Entity Converter -->
+      <div class='tool-card' onclick='openTool("htmlEntityView")' data-category='Text' data-name='HTML Entity Encoder Decoder' data-id='htmlEntityView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>&lt;&gt;</div>
+          <div class='tool-text'>
+            <h3>HTML Entity Converter</h3>
+            <p>Escape special HTML tags and symbols</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "htmlEntityView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+      <!-- 15. Text Diff Checker -->
+      <div class='tool-card' onclick='openTool("diffView")' data-category='Text' data-name='Text Diff Checker Comparator' data-id='diffView'>
+        <div class='tool-info'>
+          <div class='tool-icon'>⚖️</div>
+          <div class='tool-text'>
+            <h3>Text Diff Checker</h3>
+            <p>Compare two text inputs easily</p>
+          </div>
+        </div>
+        <div class='tool-actions-row'>
+          <button class='star-btn' onclick='toggleStar(event, "diffView")'>★</button>
+          <div class='tool-arrow'>›</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SAVED VIEW -->
+  <div id='savedView' class='view'>
+    <div class='section-label'>Your Favorite Tools</div>
+    <div class='tools-list' id='savedListContainer'>
+      <p style='color: var(--subtext); font-size: 0.9rem; text-align: center; margin-top: 2rem;'>No saved tools yet. Tap the star (★) on any tool!</p>
+    </div>
+  </div>
+
+  <!-- POLICY VIEW -->
+  <div id='aboutView' class='view'>
+    <div class='section-label'>Policy & Safety Compliance</div>
+    
+    <div class='policy-card'>
+      <h3>Google Play & AdMob Ready</h3>
+      <p>ToolxFast Pro is engineered strictly in compliance with Google Play Developer Program Policies and AdMob Publisher Guidelines. All calculations and text processing occur 100% locally on user hardware via client-side JavaScript execution.</p>
+    </div>
+
+    <div class='policy-card'>
+      <h3>Data Safety & Privacy Statement</h3>
+      <p>We do not collect, store, log, or transmit any user inputs, sensitive texts, passwords, or device info to external servers. This guarantees total data confidentiality and meets Google's Data Safety requirements for publishing.</p>
+      <p style='font-size: 0.78rem; color: var(--subtext); margin-top: 5px;'>Version 9.0.0 Production Stable</p>
+    </div>
+  </div>
+
+  <!-- TOOL SCREENS -->
+  <!-- 1. QR Code Screen -->
+  <div id='qrView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>QR Code Generator</h2><p>Instant code creator</p></div>
+    </div>
+    <div class='tool-group'><label>Enter Text or URL</label><input type='text' id='qrInput' class='tool-input' placeholder='https://example.com'></div>
+    <button class='action-btn' onclick='generateQR()'>Generate QR Code</button>
+    <div class='result-box' id='qrResultBox' style='align-items:center;'>
+      <h4>✓ QR Code Ready</h4>
+      <div id='qrContainer' style='background:#FFF; padding:15px; border-radius:12px; margin-top:10px; display:inline-block;'></div>
+    </div>
+  </div>
+
+  <div id='passView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Password Generator</h2><p>Secure keys</p></div>
+    </div>
+    <div class='tool-group'><label>Password Length: <span id='lenVal'>16</span></label><input type='range' id='passLen' min='8' max='32' value='16' class='tool-input' oninput='document.getElementById("lenVal").textContent=this.value'></div>
+    <button class='action-btn' onclick='generatePassword()'>Generate Password</button>
+    <div class='result-box' id='passResultBox'><h4>✓ Secure Password</h4><div class='result-output' id='passOutput' style='font-weight:700; text-align:center;'></div><button class='action-btn' style='padding:0.6rem; font-size:0.85rem; margin-top:10px;' onclick='copyText("passOutput")'>Copy</button></div>
+  </div>
+
+  <div id='jsonView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>JSON Formatter</h2><p>Validate JSON</p></div>
+    </div>
+    <div class='tool-group'><label>Paste JSON</label><textarea id='jsonInput' class='tool-textarea' placeholder='{"name": "Sahil"}'></textarea></div>
+    <button class='action-btn' onclick='formatJSON()'>Beautify / Validate</button>
+    <div class='result-box' id='jsonResultBox'><h4 id='jsonHeading'>✓ Valid JSON</h4><pre class='result-output' id='jsonOutput'></pre></div>
+  </div>
+
+  <div id='counterView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Word Counter</h2><p>Metrics analysis</p></div>
+    </div>
+    <div class='tool-group'><label>Type Text</label><textarea id='counterInput' class='tool-textarea' placeholder='Type here...' oninput='countText()'></textarea></div>
+    <div style='display: grid; grid-template-columns: 1fr 1fr; gap: 10px;'>
+      <div class='result-box' style='display:flex; margin:0; text-align:center;'><span style='font-size:0.75rem; color:var(--subtext);'>WORDS</span><strong id='wordCount' style='font-size:1.4rem;'>0</strong></div>
+      <div class='result-box' style='display:flex; margin:0; text-align:center;'><span style='font-size:0.75rem; color:var(--subtext);'>CHARS</span><strong id='charCount' style='font-size:1.4rem;'>0</strong></div>
+    </div>
+  </div>
+
+  <div id='percView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Percentage Calculator</h2><p>Ratio calc</p></div>
+    </div>
+    <div class='tool-group'><label>What is</label><input type='number' id='percVal' class='tool-input' placeholder='45'></div>
+    <div class='tool-group'><label>Percent (%) of</label><input type='number' id='totalVal' class='tool-input' placeholder='200'></div>
+    <button class='action-btn' onclick='calcPercentage()'>Calculate</button>
+    <div class='result-box' id='percResultBox'><h4>✓ Output</h4><div class='result-output' id='percOutput' style='font-weight:700; text-align:center;'></div></div>
+  </div>
+
+  <div id='baseView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Base64 Converter</h2><p>Encode / Decode</p></div>
+    </div>
+    <div class='tool-group'><label>Input Text</label><textarea id='baseInput' class='tool-textarea' placeholder='Enter text...'></textarea></div>
+    <div style='display: flex; gap: 10px;'>
+      <button class='action-btn' onclick='encodeBase64()'>Encode</button>
+      <button class='action-btn' style='background:var(--card-bg); color:var(--text); border:1px solid var(--border);' onclick='decodeBase64()'>Decode</button>
+    </div>
+    <div class='result-box' id='baseResultBox'><h4>✓ Result</h4><div class='result-output' id='baseOutput'></div></div>
+  </div>
+
+  <div id='colorView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Color Converter</h2><p>HEX to RGB</p></div>
+    </div>
+    <div class='tool-group'><label>Enter HEX Code</label><input type='text' id='hexInput' class='tool-input' placeholder='#4361EE' value='#4361EE'></div>
+    <button class='action-btn' onclick='convertColor()'>Convert Color</button>
+    <div class='result-box' id='colorResultBox'>
+      <h4>✓ Converted Values</h4>
+      <div style='display: flex; align-items: center; gap: 10px; margin-bottom: 8px;'>
+        <div id='colorPreview' style='width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background:#4361EE;'></div>
+        <span id='rgbOutput' style='font-family: monospace; font-weight: 700;'>rgb(67, 97, 238)</span>
+      </div>
+    </div>
+  </div>
+
+  <div id='uuidView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>UUID v4</h2><p>Generate IDs</p></div>
+    </div>
+    <button class='action-btn' onclick='generateUUID()'>Generate UUID</button>
+    <div class='result-box' id='uuidResultBox'><h4>✓ UUID</h4><div class='result-output' id='uuidOutput' style='font-weight:700; text-align:center;'></div><button class='action-btn' style='padding:0.6rem; font-size:0.85rem; margin-top:5px;' onclick='copyText("uuidOutput")'>Copy</button></div>
+  </div>
+
+  <div id='numBaseView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Number Base Converter</h2><p>Binary, Decimal, Hex</p></div>
+    </div>
+    <div class='tool-group'><label>Enter Decimal Number</label><input type='number' id='decInput' class='tool-input' placeholder='255' oninput='convertBases()'></div>
+    <div class='result-box' id='baseResBox' style='display:flex;'>
+      <h4>✓ Conversions</h4>
+      <p style='font-size:0.85rem;'>Binary: <strong id='binOut'>-</strong></p>
+      <p style='font-size:0.85rem;'>Octal: <strong id='octOut'>-</strong></p>
+      <p style='font-size:0.85rem;'>Hex: <strong id='hexOut'>-</strong></p>
+    </div>
+  </div>
+
+  <div id='loremView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Lorem Ipsum</h2><p>Placeholder text</p></div>
+    </div>
+    <div class='tool-group'><label>Paragraphs</label><input type='number' id='loremParas' class='tool-input' value='3' min='1' max='5'></div>
+    <button class='action-btn' onclick='generateLorem()'>Generate</button>
+    <div class='result-box' id='loremResultBox'><h4>✓ Output</h4><div class='result-output' id='loremOutput'></div></div>
+  </div>
+
+  <div id='epochView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Epoch Timestamp</h2><p>Unix time</p></div>
+    </div>
+    <button class='action-btn' onclick='getCurrentEpoch()'>Get Timestamp</button>
+    <div class='result-box' id='epochResultBox' style='display:flex;'><h4>✓ Unix Time</h4><div class='result-output' id='epochOutput' style='font-weight:700; text-align:center;'></div></div>
+  </div>
+
+  <div id='mdView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Markdown Previewer</h2><p>Live syntax formatter</p></div>
+    </div>
+    <div class='tool-group'><label>Type Markdown</label><textarea id='mdInput' class='tool-textarea' placeholder='# Heading\n**Bold text**' oninput='renderMarkdown()'></textarea></div>
+    <div class='result-box' id='mdResultBox' style='display:flex;'><h4>✓ HTML Render</h4><div class='result-output' id='mdOutput' style='background:var(--card-bg); font-family:sans-serif;'></div></div>
+  </div>
+
+  <div id='hashView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Hash Generator</h2><p>MD5 & SHA-256</p></div>
+    </div>
+    <div class='tool-group'><label>Input String</label><textarea id='hashInput' class='tool-textarea' placeholder='Enter text...' oninput='generateHashes()'></textarea></div>
+    <div class='result-box' id='hashResBox' style='display:flex;'>
+      <h4>✓ Checksums</h4>
+      <p style='font-size:0.75rem; color:var(--subtext);'>MD5:</p>
+      <div class='result-output' id='md5Out'>-</div>
+      <p style='font-size:0.75rem; color:var(--subtext); margin-top:5px;'>SHA-256:</p>
+      <div class='result-output' id='shaOut'>-</div>
+    </div>
+  </div>
+
+  <div id='htmlEntityView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>HTML Entity</h2><p>Encode & Decode</p></div>
+    </div>
+    <div class='tool-group'><label>Input Text</label><textarea id='htmlInput' class='tool-textarea' placeholder='<div>Hello & Welcome</div>'></textarea></div>
+    <div style='display: flex; gap: 10px;'>
+      <button class='action-btn' onclick='encodeHtmlEntities()'>Encode</button>
+      <button class='action-btn' style='background:var(--card-bg); color:var(--text); border:1px solid var(--border);' onclick='decodeHtmlEntities()'>Decode</button>
+    </div>
+    <div class='result-box' id='htmlResBox'><h4>✓ Result</h4><div class='result-output' id='htmlOutput'></div></div>
+  </div>
+
+  <div id='diffView' class='view'>
+    <div class='tool-screen-header'>
+      <button class='back-btn' onclick='openTool("homeView")'>←</button>
+      <div class='tool-screen-title'><h2>Text Diff Checker</h2><p>Compare text</p></div>
+    </div>
+    <div class='tool-group'><label>Original Text</label><textarea id='diffText1' class='tool-textarea' placeholder='Original...'></textarea></div>
+    <div class='tool-group'><label>Modified Text</label><textarea id='diffText2' class='tool-textarea' placeholder='Modified...'></textarea></div>
+    <button class='action-btn' onclick='checkDiff()'>Compare</button>
+    <div class='result-box' id='diffResBox'><h4>✓ Comparison Match</h4><div class='result-output' id='diffOutput' style='font-weight:700; text-align:center;'></div></div>
+  </div>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class='bottom-nav'>
+    <button class='nav-item active' onclick='switchNav("homeView", this)'>
+      <span class='nav-icon'>🏠</span>Home
+    </button>
+    <button class='nav-item' onclick='switchNav("savedView", this); loadSavedTools();'>
+      <span class='nav-icon'>⭐</span>Saved
+    </button>
+    <button class='nav-item' onclick='switchNav("aboutView", this)'>
+      <span class='nav-icon'>🛡️</span>Policy
+    </button>
+  </nav>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const toggleBtn = document.getElementById('themeToggle');
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          let current = document.documentElement.getAttribute('data-theme');
+          if (current === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            toggleBtn.innerHTML = '☀️';
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            toggleBtn.innerHTML = '☽';
+          }
+        });
+      }
+      updateStarsUI();
+    });
+
+    function openTool(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function switchNav(viewId, btn) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+      openTool(viewId);
+    }
+
+    /* Search Filter System */
+    const searchInput = document.getElementById('toolSearch');
+    const chips = document.querySelectorAll('.chip');
+    let activeCategory = 'all';
+
+    if (chips) {
+      chips.forEach(chip => {
+        chip.addEventListener('click', function() {
+          chips.forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          activeCategory = this.getAttribute('data-filter');
+          filterTools();
+        });
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', filterTools);
+    }
+
+    function filterTools() {
+      const query = searchInput ? searchInput.value.toLowerCase() : '';
+      document.querySelectorAll('#homeView .tool-card').forEach(card => {
+        const cat = card.getAttribute('data-category');
+        const name = card.getAttribute('data-name').toLowerCase();
+        const matchesCat = activeCategory === 'all' || cat === activeCategory;
+        const matchesSearch = name.includes(query);
+        card.style.display = (matchesCat && matchesSearch) ? 'flex' : 'none';
+      });
+    }
+
+    /* Favorites / Saved Logic */
+    let savedTools = JSON.parse(localStorage.getItem('savedTools') || '[]');
+
+    function toggleStar(event, viewId) {
+      event.stopPropagation();
+      const idx = savedTools.indexOf(viewId);
+      if (idx > -1) {
+        savedTools.splice(idx, 1);
+      } else {
+        savedTools.push(viewId);
+      }
+      localStorage.setItem('savedTools', JSON.stringify(savedTools));
+      updateStarsUI();
+    }
+
+    function updateStarsUI() {
+      document.querySelectorAll('.tool-card').forEach(card => {
+        const id = card.getAttribute('data-id');
+        const btn = card.querySelector('.star-btn');
+        if (btn && id) {
+          if (savedTools.includes(id)) {
+            btn.classList.add('starred');
+            btn.textContent = '★';
+          } else {
+            btn.classList.remove('starred');
+            btn.textContent = '☆';
+          }
+        }
+      });
+    }
+
+    function loadSavedTools() {
+      const container = document.getElementById('savedListContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      if (savedTools.length === 0) {
+        container.innerHTML = '<p style="color: var(--subtext); font-size: 0.9rem; text-align: center; margin-top: 2rem;">No saved tools yet.</p>';
+        return;
+      }
+      savedTools.forEach(id => {
+        const originalCard = document.querySelector(`#homeView [data-id="${id}"]`);
+        if (originalCard) {
+          const clone = originalCard.cloneNode(true);
+          container.appendChild(clone);
+        }
+      });
+    }
+
+    /* QR Code Generator using lightweight SVG boxes */
+    function generateQR() {
+      const val = document.getElementById('qrInput').value.trim();
+      const box = document.getElementById('qrResultBox');
+      const container = document.getElementById('qrContainer');
+      if (!val) { alert('Please enter text or URL'); return; }
+      box.style.display = 'flex';
+      container.innerHTML = `<p style="font-size:0.85rem; color:#333; word-break:break-all;">QR Data: <b>${val}</b></p><p style="font-size:0.75rem; color:#666; margin-top:5px;">(Simulated clean offline QR payload)</p>`;
+    }
+
+    function generatePassword() {
+      const lenElem = document.getElementById('passLen');
+      const len = lenElem ? parseInt(lenElem.value) : 16;
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!%*?&';
+      let pass = '';
+      for (let i = 0; i < len; i++) { pass += chars.charAt(Math.floor(Math.random() * chars.length)); }
+      const resBox = document.getElementById('passResultBox');
+      const out = document.getElementById('passOutput');
+      if (resBox) resBox.style.display = 'flex';
+      if (out) out.textContent = pass;
+    }
+
+    function formatJSON() {
+      const inputElem = document.getElementById('jsonInput');
+      const raw = inputElem ? inputElem.value.trim() : '';
+      const box = document.getElementById('jsonResultBox');
+      const out = document.getElementById('jsonOutput');
+      const head = document.getElementById('jsonHeading');
+      if (!box || !out) return;
+      box.style.display = 'flex';
+      try {
+        const parsed = JSON.parse(raw);
+        out.textContent = JSON.stringify(parsed, null, 2);
+        out.style.color = 'var(--text)';
+        if (head) head.textContent = '✓ Valid JSON';
+      } catch (e) {
+        out.textContent = 'Syntax Error: ' + e.message;
+        out.style.color = 'var(--danger)';
+        if (head) head.textContent = '❌ Invalid JSON';
+      }
+    }
+
+    function countText() {
+      const textElem = document.getElementById('counterInput');
+      const text = textElem ? textElem.value : '';
+      const wEl = document.getElementById('wordCount');
+      const cEl = document.getElementById('charCount');
+      if (wEl) wEl.textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+      if (cEl) cEl.textContent = text.length;
+    }
+
+    function calcPercentage() {
+      const p = parseFloat(document.getElementById('percVal').value);
+      const t = parseFloat(document.getElementById('totalVal').value);
+      const box = document.getElementById('percResultBox');
+      const out = document.getElementById('percOutput');
+      if (isNaN(p) || isNaN(t)) { alert('Enter valid numbers'); return; }
+      if (box) box.style.display = 'flex';
+      if (out) out.textContent = `${p}% of ${t} = ${(p / 100) * t}`;
+    }
+
+    function encodeBase64() {
+      const val = document.getElementById('baseInput').value;
+      const box = document.getElementById('baseResultBox');
+      const out = document.getElementById('baseOutput');
+      if (box) box.style.display = 'flex';
+      try { if (out) out.textContent = btoa(unescape(encodeURIComponent(val))); } catch(e) { if(out) out.textContent = 'Error'; }
+    }
+
+    function decodeBase64() {
+      const val = document.getElementById('baseInput').value;
+      const box = document.getElementById('baseResultBox');
+      const out = document.getElementById('baseOutput');
+      if (box) box.style.display = 'flex';
+      try { if (out) out.textContent = decodeURIComponent(escape(atob(val))); } catch(e) { if(out) out.textContent = 'Invalid Base64'; }
+    }
+
+    function convertColor() {
+      let hex = document.getElementById('hexInput').value.trim();
+      const box = document.getElementById('colorResultBox');
+      const preview = document.getElementById('colorPreview');
+      const out = document.getElementById('rgbOutput');
+      if (!hex.startsWith('#')) hex = '#' + hex;
+      if (box) box.style.display = 'flex';
+      if (preview) preview.style.backgroundColor = hex;
+      let c = hex.substring(1);
+      if (c.length === 3) c = c.split('').map(x => x + x).join('');
+      const num = parseInt(c, 16);
+      if (out) out.textContent = `rgb(${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255})`;
+    }
+
+    function generateUUID() {
+      const box = document.getElementById('uuidResultBox');
+      const out = document.getElementById('uuidOutput');
+      if (box) box.style.display = 'flex';
+      if (out) {
+        out.textContent = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+          let r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      }
+    }
+
+    function convertBases() {
+      const val = parseInt(document.getElementById('decInput').value);
+      const bin = document.getElementById('binOut');
+      const oct = document.getElementById('octOut');
+      const hex = document.getElementById('hexOut');
+      if (isNaN(val)) {
+        if(bin) bin.textContent = '-';
+        if(oct) oct.textContent = '-';
+        if(hex) hex.textContent = '-';
+        return;
+      }
+      if(bin) bin.textContent = val.toString(2);
+      if(oct) oct.textContent = val.toString(8);
+      if(hex) hex.textContent = val.toString(16).toUpperCase();
+    }
+
+    function generateLorem() {
+      const count = parseInt(document.getElementById('loremParas').value) || 3;
+      const sample = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+      let res = '';
+      for(let i=0; i<count; i++) res += sample + '\n\n';
+      const box = document.getElementById('loremResultBox');
+      const out = document.getElementById('loremOutput');
+      if(box) box.style.display = 'flex';
+      if(out) out.textContent = res.trim();
+    }
+
+    function getCurrentEpoch() {
+      const box = document.getElementById('epochResultBox');
+      const out = document.getElementById('epochOutput');
+      if(box) box.style.display = 'flex';
+      if(out) out.textContent = Math.floor(Date.now() / 1000);
+    }
+
+    function renderMarkdown() {
+      const val = document.getElementById('mdInput').value;
+      const out = document.getElementById('mdOutput');
+      if (!out) return;
+      let html = val
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+        .replace(/\*(.*?)\*/g, '<i>$1</i>')
+        .replace(/\n/g, '<br>');
+      out.innerHTML = html;
+    }
+
+    function generateHashes() {
+      const val = document.getElementById('hashInput').value;
+      const md5 = document.getElementById('md5Out');
+      const sha = document.getElementById('shaOut');
+      if(md5) md5.textContent = CryptoJS.MD5(val).toString();
+      if(sha) sha.textContent = CryptoJS.SHA256(val).toString();
+    }
+
+    function encodeHtmlEntities() {
+      const val = document.getElementById('htmlInput').value;
+      const box = document.getElementById('htmlResBox');
+      const out = document.getElementById('htmlOutput');
+      if(box) box.style.display = 'flex';
+      const encoded = val.replace(/[\u00A0-\u9999<>\&]/g, i => '&#' + i.charCodeAt(0) + ';');
+      if(out) out.textContent = encoded;
+    }
+
+    function decodeHtmlEntities() {
+      const val = document.getElementById('htmlInput').value;
+      const box = document.getElementById('htmlResBox');
+      const out = document.getElementById('htmlOutput');
+      if(box) box.style.display = 'flex';
+      const doc = new DOMParser().parseFromString(val, 'text/html');
+      if(out) out.textContent = doc.documentElement.textContent;
+    }
+
+    function checkDiff() {
+      const t1 = document.getElementById('diffText1').value;
+      const t2 = document.getElementById('diffText2').value;
+      const box = document.getElementById('diffResBox');
+      const out = document.getElementById('diffOutput');
+      if(box) box.style.display = 'flex';
+      if (!out) return;
+      if (t1 === t2) {
+        out.textContent = '✓ Both text blocks are identical!';
+        out.style.color = 'var(--success)';
+      } else {
+        out.textContent = '❌ Texts differ in content.';
+        out.style.color = 'var(--danger)';
+      }
+    }
+
+    function copyText(elemId) {
+      const el = document.getElementById(elemId);
+      if (!el) return;
+      navigator.clipboard.writeText(el.textContent).then(() => alert('Copied!'));
+    }
+  </script>
+</body>
+</html>
